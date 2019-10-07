@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">FantasticWeatherApp</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="search_bar_hint">Enter the city name to check its weather</string>
+    <string name="search_icon_description">Search Weather</string>
+</resources>

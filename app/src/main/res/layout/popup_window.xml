@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cardview_shadow_start_color"
+    android:padding="10dp">
+
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/search_icon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:boxBackgroundColor="@color/material_on_primary_emphasis_high_type"
+        app:endIconMode="custom"
+        app:endIconDrawable="@drawable/ic_search_24dp_foreground"
+        app:endIconContentDescription="@string/search_icon_description"
+        android:hint="@string/search_bar_hint"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/location_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/back_button_in_popup_window"
+        style="@style/Widget.MaterialComponents.FloatingActionButton"
+        app:backgroundTint="@color/colorAccent"
+        app:tint="@null"
+        app:borderWidth="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        app:srcCompat="@drawable/ic_back_24dp_foreground"
+        />
+
+
+</LinearLayout>

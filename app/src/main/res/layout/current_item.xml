@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="40dp"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="6dp"
+    app:cardElevation="6dp"
+    app:cardBackgroundColor="#73FFFFFF"
+     >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+        <TextView
+            android:id="@+id/current_city_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="1dp"
+            android:layout_alignParentLeft="true"
+            android:text="London"
+            android:maxLines="2"
+            android:maxWidth="125dp"
+            android:textColor="@android:color/white"
+            android:textSize="24sp" />
+
+
+<!--            <ImageView-->
+<!--                android:id="@+id/current_weather_icon"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:scaleType="centerCrop"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:padding="1dp" />-->
+
+            <TextView
+                android:id="@+id/current_weather_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sunny"
+                android:textSize="24sp"
+                android:textColor="@android:color/white"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_centerHorizontal="true"
+                android:maxWidth="180dp"
+                android:padding="1dp"
+                />
+
+
+        <TextView
+            android:id="@+id/current_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="47 C"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:padding="1dp" />
+<!--        <TextView-->
+<!--            android:id="@+id/current_date"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Mon, 09/20/2019"-->
+<!--            android:padding="1dp" />-->
+
+
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>
