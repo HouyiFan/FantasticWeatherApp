@@ -24,7 +24,6 @@ import com.fandev.fantasticweatherapp.data.ForecastHourlyAdapter;
 import com.fandev.fantasticweatherapp.model.DailyForecast;
 import com.fandev.fantasticweatherapp.model.HourlyForecast;
 import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +32,6 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ForecastFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
  * Use the {@link ForecastFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
@@ -69,7 +66,6 @@ public class ForecastFragment extends Fragment {
         View forecastView = inflater.inflate(R.layout.fragment_forecast, container, false);
 
         ImageView forecastIcon = forecastView.findViewById(R.id.forecast_daily_weather_icon);
-
         TextView forecastCity = forecastView.findViewById(R.id.forecast_city_name);
         TextView forecastDate =forecastView.findViewById(R.id.forecast_date);
         TextView forecastHigh = forecastView.findViewById(R.id.forecast_high_temp);
@@ -84,15 +80,7 @@ public class ForecastFragment extends Fragment {
         ForecastHourlyAdapter forecastHourlyAdapter = new ForecastHourlyAdapter(getActivity(), hourlyForecastList);
         forecastHourlyRecyclerView.setAdapter(forecastHourlyAdapter);
 
-//        final Prefs prefs = new Prefs(getActivity());
-//        String prefsLocation = prefs.getLocation();
-//        getForecastWeather(prefsLocation);
-
-
         DailyForecast dailyForecast = (DailyForecast) getArguments().getSerializable("forecast");
-
-//        getPhotoByPlace(dailyForecast.getCityName(), dailyForecast);
-
         List<HourlyForecast> hourlyForecastListAtDayPos = dailyForecast.getList();
         double lowTemp = Double.MAX_VALUE;
         double highTemp = Double.MIN_VALUE;
@@ -111,11 +99,6 @@ public class ForecastFragment extends Fragment {
         dayTemp /= hourlyForecastListAtDayPos.size();
         hourlyForecastList.clear();
         hourlyForecastList.addAll(hourlyForecastListAtDayPos);
-//        hourlyForecastList = new ArrayList<>(hourlyForecastListAtDayPos);
-//        for (HourlyForecast hourlyForecast: hourlyForecastListAtDayPos) {
-//            Log.d(TAG, "Hourly forecast: " + hourlyForecast.getDetailTime() + ": " + hourlyForecast.getTemp());
-//            hourlyForecastList.add(hourlyForecast);
-//        }
         forecastHourlyAdapter.notifyDataSetChanged();
 
         String detailTime = hourlyForecastListAtDayPos.get(0).getDetailTime();
@@ -143,17 +126,7 @@ public class ForecastFragment extends Fragment {
         Glide.with(forecastView).load(cityPhotoUri).into(cityPhoto);
 
         MaterialCardView cardView = forecastView.findViewById(R.id.card_view);
-        ShowcaseConfig config = new ShowcaseConfig();
-//        config.setDelay(5000); // half second between each showcase view
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(getActivity());
-//        sequence.setConfig(config);
-//        sequence.addSequenceItem(cardView,
-//                "Here is the detailed weather info.\n", "GOT IT");
-//        sequence.addSequenceItem(forecastHourlyRecyclerView,
-//                "You can scroll down to view the weather of each 3 hours of this day.", "GOT IT");
-//        sequence.addSequenceItem(cardView,
-//                "And you can swipe it to check another day's weather. Enjoy it!", "GOT IT");
-
         sequence.addSequenceItem(new MaterialShowcaseView.Builder(getActivity())
                                     .setTarget(cardView)
                                     .setContentText("Here is the detailed weather info.")
@@ -179,15 +152,7 @@ public class ForecastFragment extends Fragment {
                                     .setGravity(Gravity.BOTTOM)
                                     .setDelay(600)
                                     .build());
-
         sequence.start();
-
-
-//        showIntro("Here is the detailed weather info.", cardView, "daily_forecast_showcase1");
-//        showIntro("You can scroll down to view the weather of each 3 hours of this day.",
-//                forecastView, "hourly_forecast_showcase");
-//        showIntro("And you can swipe it to check another day's weather. Enjoy it!", cardView,
-//                "daily_forecast_showcase2");
         return forecastView;
     }
 

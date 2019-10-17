@@ -89,6 +89,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableLeft="@android:drawable/arrow_down_float"
+                    android:drawablePadding="4dp"
                     android:text="Low:"
                     android:textColor="@android:color/white"
                     android:textSize="24sp" />
@@ -96,6 +97,7 @@
                 <TextView
                     android:id="@+id/forecast_high_temp"
                     android:drawableLeft="@android:drawable/arrow_up_float"
+                    android:drawablePadding="4dp"
                     android:layout_marginLeft="15dp"
                     android:layout_toRightOf="@id/forecast_low_temp"
                     android:layout_centerHorizontal="true"

@@ -1,23 +1,17 @@
 package com.fandev.fantasticweatherapp.service;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.bumptech.glide.Glide;
-import com.fandev.fantasticweatherapp.BuildConfig;
-import com.fandev.fantasticweatherapp.MainActivity;
 import com.fandev.fantasticweatherapp.controller.AppController;
 import com.fandev.fantasticweatherapp.model.Current;
 import com.fandev.fantasticweatherapp.util.Prefs;
@@ -30,6 +24,9 @@ import java.util.ArrayList;
 
 import androidx.annotation.Nullable;
 
+/**
+ * Auto update service class that will update Bing picture every 6 hours
+ */
 public class AutoUpdateService extends Service {
 
     private static final String TAG = "AutoUpdateService";
@@ -44,10 +41,9 @@ public class AutoUpdateService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        updateWeather();
         updateBingPic();
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        int sixHours = 6 * 60 * 60 * 1000; //6 hour
+        int sixHours = 6 * 60 * 60 * 1000; //6 hours
         long triggerAtTime = SystemClock.elapsedRealtime() + sixHours;
         Intent i = new Intent(this, AutoUpdateService.class);
         PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
@@ -56,18 +52,9 @@ public class AutoUpdateService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-//    private void updateWeather() {
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-//        String weatherString = prefs.getString("city_list", null);
-//        currentWeatherArrayList = (ArrayList<Current>)prefs.getCityList();
-//        if (currentWeatherArrayList != null) {
-//            for (Current city: currentWeatherArrayList) {
-//                updateWeatherItem(city);
-//            }
-//        }
-//
-//    }
-
+    /**
+     * Fetch updated Bing picture
+     */
     private void updateBingPic(){
         String queryUrl = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US";
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,

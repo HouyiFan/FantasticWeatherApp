@@ -10,18 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.format.DateFormat;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -59,8 +53,6 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private ForecastViewPagerAdapter forecastViewPagerAdapter;
-    private ViewPager viewPager;
     private PopupWindow popupWindow;
     private FloatingActionButton addWeatherButton;
     private TextInputLayout textInputCustomIcon;
@@ -71,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     private CurrentAdapter currentAdapter;
     private ImageView bingPic;
     private FloatingActionButton backButton;
-//    private SharedPreferences sharedPreferences;
     private Time time = new Time();
     private ItemTouchHelper itemTouchHelper;
     private String formalCityName;
@@ -80,61 +71,45 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         setContentView(R.layout.activity_main);
-
         Intent intent = getIntent();
-
-
-
         addWeatherButton = findViewById(R.id.add_weather_button);
         bingPic = findViewById(R.id.bing_pic);
         coordinatorLayout = findViewById(R.id.container);
         currentWeatherRecyclerView = findViewById(R.id.current_weather_recycler_view);
         currentWeatherRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        // if user has added some cities before, then show the current weather of those cities
         if (intent.getSerializableExtra("cityList") != null) {
             Log.d(TAG, "get cityList!");
-//            currentWeatherArrayList.clear();
             currentWeatherArrayList = (ArrayList<Current>) (intent.getSerializableExtra("cityList"));
-            Log.d(TAG, "cityName: " + currentWeatherArrayList.get(0).getCityName());
-//            currentAdapter.notifyDataSetChanged();
         } else {
             currentWeatherArrayList = new ArrayList<>();
         }
         currentAdapter = new CurrentAdapter(this, currentWeatherArrayList);
         currentWeatherRecyclerView.setAdapter(currentAdapter);
-
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(currentAdapter);
         itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(currentWeatherRecyclerView);
-
         currentAdapter.notifyDataSetChanged();
-
         showIntro("Welcome to Fantastic Weather App!\n\n" +
                 "Let me give you a quick overview of how it works.\n\n" +
-                        "First, press the button at the bottom right to add the city you want to check its weather.", addWeatherButton, "add_weather_button_showcase");
+                "First, press the button at the bottom right to add the city you want to check its weather.",
+                addWeatherButton, "add_weather_button_showcase");
 
         addWeatherButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View customView = layoutInflater.inflate(R.layout.popup_window, (ViewGroup) findViewById(R.id.container), false);
-                popupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                popupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
                 popupWindow.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
                 textInputCustomIcon = customView.findViewById(R.id.search_icon);
                 textInputEditText = customView.findViewById(R.id.location_text);
-//                showIntro("Next, enter the name of a city that you want to check its weather," +
-//                        "press search icon to finish adding", textInputCustomIcon, "search_bar_showcase");
-                popupWindow.setFocusable(true);
-                popupWindow.update();
                 backButton = customView.findViewById(R.id.back_button_in_popup_window);
                 addWeatherButton.setVisibility(View.GONE);
                 final String[] photoReference = {""};
-
-
 
                 textInputCustomIcon.setEndIconOnClickListener(new View.OnClickListener() {
                     @Override
@@ -168,27 +143,23 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         }, formalCityName);
                                     }
-                                }, location, photoReference);
+                                }, location);
                             } else {
                                 textInputCustomIcon.setError("Your input does not give a match");
                             }
                         }
                     }
                 });
-
                 textInputEditText.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
                         textInputCustomIcon.setError(null);
                     }
-
                     @Override
                     public void afterTextChanged(Editable s) { }
                 });
-
                 backButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -201,26 +172,37 @@ public class MainActivity extends AppCompatActivity {
 
         Prefs prefs = new Prefs(this);
         String bingPicUrl = prefs.getBingPic();
+        // if the url of the bing picture has been cached, load it directly
+        //  Otherwise, fetch bing picture from the Internet
         if (bingPicUrl != null) {
             Glide.with(getApplicationContext()).load(bingPicUrl).into(bingPic);
             Log.d(TAG, "Fetched bing pic from cache");
         } else {
             getBingPic();
         }
+        // if cities have been cached, load it directly
         if (prefs.getCityList() != null) {
             currentWeatherArrayList.clear();
             currentWeatherArrayList.addAll(prefs.getCityList());
             for (Current item: currentWeatherArrayList) {
                 updateWeatherItem(item);
             }
-
             Log.d(TAG, "Fetched city list from cache");
         }
+        // start the auto update service
         Intent serviceIntent = new Intent(this, AutoUpdateService.class);
         startService(serviceIntent);
     }
 
-    private void getCurrentWeather(final CurrentWeatherResponse callback, final String locationText, final String[] photoReference) {
+    /**
+     * Get the current weather info from the location that the user gives.
+     *
+     * @param callback
+     *          a callback function that will be called after getting the current weather info
+     * @param locationText
+     *          the city name that user provides
+     */
+    private void getCurrentWeather(final CurrentWeatherResponse callback, final String locationText) {
         String queryUrl = "http://api.openweathermap.org/data/2.5/weather?q=" + locationText
                 + "&units=metric&APPID=" + BuildConfig.WEATHER_API_KEY;
 
@@ -234,37 +216,33 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject windObject = response.getJSONObject("wind");
                     JSONObject sysObject = response.getJSONObject("sys");
 
+                    String cityName = response.getString("name");
+                    formalCityName = cityName;
                     long dateUTC = response.getLong("dt");
                     String date = time.getDateFromUTC(dateUTC, "EE, HH:mm a, z");
-//                    String date = getDateFromUTC(dateUTC, "EEE, d MMM HH:mm:ss");
-//                    Log.d(TAG, "Current date:" + Instant.now());
-
+                    // inside sys object
                     long sunriseTimeUTC = sysObject.getLong("sunrise");
                     long sunsetTimeUTC = sysObject.getLong("sunset");
-
+                    String countryName = sysObject.getString("country");
                     String sunriseTime = time.getDateFromUTC(sunriseTimeUTC, "yyyy-MM-dd HH:mm:ss");
                     String sunsetTime = time.getDateFromUTC(sunsetTimeUTC, "yyyy-MM-dd HH:mm:ss");
-
-                    String cityName = response.getString("name");
-
-                    formalCityName = cityName;
-
-                    String countryName = sysObject.getString("country");
-
+                    // check if the city has been added
                     if (checkDuplicateCityInput(cityName, currentWeatherArrayList)){
                         textInputCustomIcon.setError("Your already added this city");
                         return;
                     }
-
+                    // inside wind object
                     String windSpeed = windObject.getString("speed");
+                    // inside main object
                     String currentTemp = Math.round(Double.parseDouble(mainObject.getString("temp"))) + " \u2103";
                     Log.d(TAG, "currentTemp: " + currentTemp);
 //                    String lowTemp = mainObject.getString("temp_min");
 //                    String highTemp = mainObject.getString("temp_max");
                     String humidity = mainObject.getString("humidity");
+                    // inside weather object
                     String currentDescription = weatherObject.getString("description");
                     String icon = weatherObject.getString("icon");
-
+                    // set fields of a current weather class of this city
                     Current currentWeatherItem = new Current();
                     currentWeatherItem.setCityName(cityName);
                     currentWeatherItem.setDate(date);
@@ -274,9 +252,7 @@ public class MainActivity extends AppCompatActivity {
                     currentWeatherItem.setDescription(currentDescription);
                     currentWeatherItem.setIcon(icon);
                     currentWeatherItem.setHumidity(humidity);
-//                    currentWeatherItem.setPhotoRef(photoReference[0]);
                     currentWeatherArrayList.add(currentWeatherItem);
-
                     Log.d(TAG, "onClick: " + currentWeatherArrayList.size());
                 } catch (JSONException error) {
                     error.printStackTrace();
@@ -295,6 +271,15 @@ public class MainActivity extends AppCompatActivity {
         AppController.getInstance().addToRequestQueue(jsonObjectRequest);
     }
 
+    /**
+     * Check if the user provides duplicate input (the city has been added)
+     * @param cityName
+     *          the city name that the user provides
+     * @param currentWeatherArrayList
+     *          a list of current weather info of cities provided by the user
+     * @return
+     *          if the user provides duplicate input (the city has been added)
+     */
     private boolean checkDuplicateCityInput(String cityName, ArrayList<Current> currentWeatherArrayList) {
         if (currentWeatherArrayList == null || currentWeatherArrayList.size() == 0) return false;
         for (Current current: currentWeatherArrayList) {
@@ -305,6 +290,9 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * Fetch Bing daily picture and set it as the background image of app
+     */
     private void getBingPic() {
         String queryUrl = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US";
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
@@ -331,6 +319,14 @@ public class MainActivity extends AppCompatActivity {
         AppController.getInstance().addToRequestQueue(jsonObjectRequest);
     }
 
+    /**
+     * Fetch the url of a photo of the city by Google Place API,
+     *  and set it as the "photo_reference" field of current weather info class of that city.
+     * @param callback
+     *          a callback function that will be called after getting the photo url
+     * @param cityName
+     *          a city name that the user provides
+     */
     private void getPhotoByPlace (final PhotoAsyncResponse callback, String cityName) {
         String queryRequest = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input="
                 + cityName + "+city&inputtype=textquery&fields=photos&key=" + BuildConfig.PHOTO_API_KEY;
@@ -359,6 +355,11 @@ public class MainActivity extends AppCompatActivity {
         AppController.getInstance().addToRequestQueue(jsonObjectRequest);
     }
 
+    /**
+     * Update the weather info of a city
+     * @param currentWeatherItem
+     *          a class containing current weather info of a city
+     */
     private void updateWeatherItem(final Current currentWeatherItem) {
         String queryUrl = "http://api.openweathermap.org/data/2.5/weather?q=" + currentWeatherItem.getCityName()
                 + "&units=metric&APPID=" + BuildConfig.WEATHER_API_KEY;
@@ -386,7 +387,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "updated: " + currentWeatherArrayList.size());
                     Log.d(TAG, "Current weather item updates successfully!");
                     currentAdapter.notifyDataSetChanged();
-
                 } catch (JSONException error) {
                     error.printStackTrace();
                 }
@@ -400,6 +400,15 @@ public class MainActivity extends AppCompatActivity {
         AppController.getInstance().addToRequestQueue(jsonObjectRequest);
     }
 
+    /**
+     * Show introduction text for a first-time user
+     * @param text
+     *          the introduction text
+     * @param view
+     *          the view that will be introduced
+     * @param showCaseID
+     *          a unique ID used to ensure it is only shown once
+     */
     private void showIntro(String text, View view, String showCaseID) {
         new MaterialShowcaseView.Builder(this)
                 .setTarget(view)
